@@ -5,6 +5,7 @@
  * Contains hook implementations for the Field Map Search API Module.
  */
 
+use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
  * Implements hook_help().
