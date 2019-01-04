@@ -3,6 +3,7 @@
 namespace Drupal\search_api_field_map_domain\Plugin\search_api\processor;
 
 use Drupal\domain\DomainNegotiator;
+use Drupal\domain\DomainStorage;
 use Drupal\search_api\Datasource\DatasourceInterface;
 use Drupal\search_api\Item\ItemInterface;
 use Drupal\search_api_field_map_domain\Plugin\search_api\processor\Property\MappedDomainSiteNameProperty;
@@ -29,6 +30,9 @@ class MappedDomainSiteName extends ProcessorPluginBase {
   // @var $domainNegotiator DomainNegotiator.
   private $domainNegotiator;
 
+  // @var $domainStorage DomainStorage.
+  private $domainStorage;
+
   /**
    * @param ContainerInterface $container
    *
@@ -41,12 +45,14 @@ class MappedDomainSiteName extends ProcessorPluginBase {
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
 
     $domain_negotiator = $container->get('domain.negotiator');
+    $domain_storage = $container->get('entity_type.manager')->getStorage('domain');
 
     return new static (
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $domain_negotiator
+      $domain_negotiator,
+      $domain_storage
     );
   }
 
@@ -58,10 +64,11 @@ class MappedDomainSiteName extends ProcessorPluginBase {
    * @param $plugin_definition
    * @param DomainNegotiator $domain_negotiator
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, DomainNegotiator $domain_negotiator) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, DomainNegotiator $domain_negotiator, DomainStorage $domain_storage) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->domainNegotiator = $domain_negotiator;
+    $this->domainStorage = $domain_storage;
   }
 
   /**
@@ -77,7 +84,7 @@ class MappedDomainSiteName extends ProcessorPluginBase {
         'type' => 'string',
         'processor_id' => $this->getPluginId(),
       ];
-      $properties['mapped_domain_site_name_field'] = new MappedDomainSiteNameProperty($definition);
+      $properties['mapped_domain_site_name_field'] = new MappedDomainSiteNameProperty($definition, $this->domainStorage);
     }
 
     return $properties;

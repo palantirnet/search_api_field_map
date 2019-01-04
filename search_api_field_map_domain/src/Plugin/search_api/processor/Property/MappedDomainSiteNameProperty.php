@@ -2,6 +2,7 @@
 
 namespace Drupal\search_api_field_map_domain\Plugin\search_api\processor\Property;
 
+use Drupal\domain\DomainStorage;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\search_api\Item\FieldInterface;
@@ -15,6 +16,15 @@ use Drupal\search_api\Processor\ConfigurablePropertyBase;
 class MappedDomainSiteNameProperty extends ConfigurablePropertyBase {
 
   use StringTranslationTrait;
+
+  // @var $domainStorage DomainStorage.
+  private $domainStorage;
+
+  public function __construct($definition, DomainStorage $domain_storage) {
+    parent::__construct($definition);
+
+    $this->domainStorage = $domain_storage;
+  }
 
   /**
    * {@inheritdoc}
@@ -42,8 +52,7 @@ class MappedDomainSiteNameProperty extends ConfigurablePropertyBase {
       '#description' => $this->t('Set the data to be sent to the index for each domain in the data sources set in your index configuration.'),
     ];
 
-    // TODO: Dependency injection.
-    $domains = \Drupal::entityTypeManager()->getStorage('domain')->loadMultipleSorted(NULL, TRUE);
+    $domains = $this->domainStorage->loadMultipleSorted(NULL, TRUE);
 
     foreach ($domains as $domain) {
         $form['field_data'][$domain->get('id')] = [
