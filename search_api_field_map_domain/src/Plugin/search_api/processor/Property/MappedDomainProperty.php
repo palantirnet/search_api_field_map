@@ -9,11 +9,11 @@ use Drupal\search_api\Item\FieldInterface;
 use Drupal\search_api\Processor\ConfigurablePropertyBase;
 
 /**
- * Defines an "mapped domain site name field" property.
+ * Defines an "mapped domain" property.
  *
- * @see \Drupal\search_api_field_map_domain\Plugin\search_api\processor\MappedDomainSiteName
+ * @see \Drupal\search_api_field_map_domain\Plugin\search_api\processor\MappedDomain
  */
-class MappedDomainSiteNameProperty extends ConfigurablePropertyBase {
+class MappedDomainProperty extends ConfigurablePropertyBase {
 
   use StringTranslationTrait;
 
@@ -49,7 +49,7 @@ class MappedDomainSiteNameProperty extends ConfigurablePropertyBase {
     $form['field_data'] = [
       '#type' => 'item',
       '#title' => $this->t('Mapped data'),
-      '#description' => $this->t('Set the data to be sent to the index for each domain in the data sources set in your index configuration.'),
+      '#description' => $this->t('Set the data to be sent to the index for each domain.'),
     ];
 
     $domains = $this->domainStorage->loadMultipleSorted(NULL, TRUE);
