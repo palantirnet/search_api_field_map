@@ -2,10 +2,12 @@
 
 namespace Drupal\search_api_field_map_domain\Plugin\search_api\processor;
 
+use Drupal\domain\DomainNegotiator;
 use Drupal\search_api\Datasource\DatasourceInterface;
 use Drupal\search_api\Item\ItemInterface;
 use Drupal\search_api_field_map_domain\Plugin\search_api\processor\Property\MappedDomainSiteNameProperty;
 use Drupal\search_api\Processor\ProcessorPluginBase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Create a field that maps domains to site names.
@@ -24,6 +26,43 @@ use Drupal\search_api\Processor\ProcessorPluginBase;
  * )
  */
 class MappedDomainSiteName extends ProcessorPluginBase {
+  // @var $domainNegotiator DomainNegotiator.
+  private $domainNegotiator;
+
+  /**
+   * @param ContainerInterface $container
+   *
+   * @param array $configuration
+   * @param $plugin_id
+   * @param $plugin_definition
+   *
+   * @return MappedDomainSiteName
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+
+    $domain_negotiator = $container->get('domain.negotiator');
+
+    return new static (
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $domain_negotiator
+    );
+  }
+
+  /**
+   * MappedDomainSiteName constructor.
+   *
+   * @param array $configuration
+   * @param $plugin_id
+   * @param $plugin_definition
+   * @param DomainNegotiator $domain_negotiator
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, DomainNegotiator $domain_negotiator) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+
+    $this->domainNegotiator = $domain_negotiator;
+  }
 
   /**
    * {@inheritdoc}
@@ -65,9 +104,8 @@ class MappedDomainSiteName extends ProcessorPluginBase {
       // Get configuration for the field.
       $configuration = $mapped_field->getConfiguration();
 
-      // TODO: Dependency injection.
       // Get the current domain.
-      $domain = \Drupal::getContainer()->get('domain.negotiator')->getActiveId();;
+      $domain = $this->domainNegotiator->getActiveId();
 
       // If there's a config item for the entity and bundle type we're in, set the value for the field.
       if(!empty($configuration['field_data'][$domain])) {
