@@ -6,7 +6,7 @@ use Drupal\search_api\Datasource\DatasourceInterface;
 use Drupal\search_api\Item\ItemInterface;
 use Drupal\search_api\Processor\ProcessorPluginBase;
 use Drupal\search_api\Processor\ProcessorProperty;
-use Drupal\search_api_field_map\Plugin\search_api\processor\Property\URLsProperty;
+use Drupal\search_api_field_map\Plugin\search_api\processor\Property\UrlsProperty;
 
 
 /**
@@ -38,7 +38,7 @@ class Urls extends ProcessorPluginBase {
         'type' => 'string',
         'processor_id' => $this->getPluginId(),
       ];
-      $properties['search_api_urls'] = new URLsProperty($definition);
+      $properties['search_api_urls'] = new UrlsProperty($definition);
     }
 
     return $properties;
