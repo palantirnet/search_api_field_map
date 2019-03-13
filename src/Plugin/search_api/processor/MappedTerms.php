@@ -118,7 +118,10 @@ class MappedTerms extends ProcessorPluginBase {
             // If the mapped_terms field is populated, add its values to the destination_terms array.
             if (!empty($mapped_term_values)) {
               foreach ($mapped_term_values as $mapped_term_value) {
-                $mapped_terms_destination_values[] = $mapped_term_value['value'];
+                // Avoid adding empty strings as values.
+                if (strlen(trim($mapped_term_value['value']))) {
+                  $mapped_terms_destination_values[] = $mapped_term_value['value'];
+                }
               };
             }
           }
