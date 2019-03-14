@@ -93,7 +93,7 @@ class MappedTerms extends ProcessorPluginBase {
 
         // If there are no taxonomy terms on this $entity, do nothing.
         if (empty($entity_terms)) {
-          return;
+          continue;
         }
 
         // Iterate through this item's taxonomy terms to find mapped_terms values.
@@ -127,7 +127,6 @@ class MappedTerms extends ProcessorPluginBase {
           }
         };
       }
-
       // Remove any duplicate mapped_term_destination_values.
       $mapped_terms_destination_values = array_unique($mapped_terms_destination_values);
 
