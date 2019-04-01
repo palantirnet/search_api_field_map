@@ -50,8 +50,20 @@ class SiteName extends ProcessorPluginBase {
   public function addFieldValues(ItemInterface $item) {
     $fields = $this->getFieldsHelper()
       ->filterForPropertyPath($item->getFields(), NULL, 'site_name');
+
     foreach ($fields as $field) {
+      // Default to value of the site name text field.
       $site_name = $field->getConfiguration()['site_name'];
+      // Check if flag to use [site:name] is set.
+      $use_system_site_name = $field->getConfiguration()['use_system_site_name'];
+      if ($use_system_site_name) {
+        $token = \Drupal::token();
+        // If the token replacement produces a value, add to this item.
+        if ($value = $token->replace('[site:name]', [], ['clear' => true])) {
+          $site_name = $value;
+        }
+      }
+
       $field->addValue($site_name);
     }
   }
