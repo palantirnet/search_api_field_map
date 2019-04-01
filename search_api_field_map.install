@@ -7,7 +7,8 @@
 
 
 /**
- * Disable use of the system site name token for site name property config.
+ * For Federated Search App selected index config, disable use of the system site name
+ * token for site name property by default.
  */
 function search_api_field_map_update_8101(&$sandbox) {
   $config_factory = \Drupal::configFactory();
