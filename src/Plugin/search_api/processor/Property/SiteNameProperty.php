@@ -55,7 +55,7 @@ class SiteNameProperty extends ConfigurablePropertyBase {
     $form['site_name_group']['use_system_site_name'] = [
       '#type' => 'checkbox',
       '#title' => '<b>' . $this->t('Use the site name from '. $basic_site_settings_page_link  .' > Site Details > Site Name') . '</b>',
-      '#default_value' => $configuration['use_system_site_name'],
+      '#default_value' => isset($configuration['use_system_site_name']) ? $configuration['use_system_site_name'] : 0,
       '#description' => $this->t('This option is recommended for multisite installations that share config across sites.'),
       '#attributes' => [
         'data-use-system-site-name' => TRUE,
@@ -66,7 +66,7 @@ class SiteNameProperty extends ConfigurablePropertyBase {
       '#type' => 'textfield',
       '#title' => $this->t('Site Name'),
       '#description' => $this->t('Create a Site Name.'),
-      '#default_value' => $configuration['site_name'],
+      '#default_value' => isset($configuration['site_name']) ? $configuration['site_name'] : '',
       '#states' => [
         'visible' => [
           ':input[data-use-system-site-name]' => [
