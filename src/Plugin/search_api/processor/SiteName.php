@@ -2,6 +2,7 @@
 
 namespace Drupal\search_api_field_map\Plugin\search_api\processor;
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\search_api\Datasource\DatasourceInterface;
 use Drupal\search_api\Item\ItemInterface;
 use Drupal\search_api\Processor\ProcessorPluginBase;
@@ -50,10 +51,66 @@ class SiteName extends ProcessorPluginBase {
   public function addFieldValues(ItemInterface $item) {
     $fields = $this->getFieldsHelper()
       ->filterForPropertyPath($item->getFields(), NULL, 'site_name');
-    foreach ($fields as $field) {
-      $site_name = $field->getConfiguration()['site_name'];
-      $field->addValue($site_name);
+    if ($this->useDomain()) {
+      $entity = $item->getOriginalObject()->getValue();
+      if ($entity instanceof EntityInterface) {
+        $this->addDomainName($item, $entity, $fields);
+      }
+    }
+    else {
+      foreach ($fields as $field) {
+        $site_name = $field->getConfiguration()['site_name'];
+        $field->addValue($site_name);
+      }
     }
   }
+
+  /**
+   * Whether to use the canonical value from Domain Source.
+   *
+   * @return bool
+   */
+  protected function useDomain() {
+    return defined('DOMAIN_ADMIN_FIELD');
+  }
+
+  /**
+   * Process site names for Domains.
+   *
+   * @param Drupal\search_api\Item\ItemInterface $item
+   *   The item being indexed.
+   * @param Drupal\Core\Entity\EntityInterface $entity
+   *   The original entity of the item.
+   * @param array $fields
+   *   The fields being processed for this item.
+   *
+   * @TODO: Allow this value to be configured.
+   */
+  protected function addDomainName(ItemInterface $item, EntityInterface $entity, array $fields) {
+    $manager = \Drupal::service('domain_access.manager');
+    $urls = $manager->getContentUrls($entity);
+    if (!empty($urls)) {
+      $storage = \Drupal::service('entity_type.manager')->getStorage('domain');
+      $domains = $storage->loadMultiple();
+      foreach ($fields as $field) {
+        foreach ($urls as $domain_id => $url) {
+          if (isset($domains[$domain_id])) {
+            $site_name = $domains[$domain_id]->label();
+          }
+          else {
+            $site_name = $field->getConfiguration()['site_name'];
+          }
+          $field->addValue($site_name);
+        }
+      }
+    }
+    else {
+      foreach ($fields as $field) {
+        $site_name = $field->getConfiguration()['site_name'];
+        $field->addValue($site_name);
+      }
+    }
+  }
+
 
 }

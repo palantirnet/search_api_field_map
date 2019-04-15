@@ -7,16 +7,16 @@ use Drupal\search_api\Datasource\DatasourceInterface;
 use Drupal\search_api\Item\ItemInterface;
 use Drupal\search_api\Processor\ProcessorPluginBase;
 use Drupal\search_api\Processor\ProcessorProperty;
-use Drupal\search_api_field_map\Plugin\search_api\processor\Property\UrlsProperty;
+use Drupal\search_api_field_map\Plugin\search_api\processor\Property\CanonicalUrlProperty;
 
 
 /**
  * Adds the Urls to the indexed data.
  *
  * @SearchApiProcessor(
- *   id = "search_api_urls",
- *   label = @Translation("Urls"),
- *   description = @Translation("Adds the Urls to the indexed data."),
+ *   id = "search_api_canonical_url",
+ *   label = @Translation("Canonical URL"),
+ *   description = @Translation("Adds a canonical flag to the indexed data."),
  *   stages = {
  *     "add_properties" = 0,
  *   },
@@ -24,7 +24,7 @@ use Drupal\search_api_field_map\Plugin\search_api\processor\Property\UrlsPropert
  *   hidden = true,
  * )
  */
-class Urls extends ProcessorPluginBase {
+class CanonicalUrl extends ProcessorPluginBase {
 
   /**
    * {@inheritdoc}
@@ -34,12 +34,12 @@ class Urls extends ProcessorPluginBase {
 
     if (!$datasource) {
       $definition = [
-        'label' => $this->t('Urls'),
-        'description' => $this->t('URLs pointing to this node on all sites containing.'),
+        'label' => $this->t('Canonical URL'),
+        'description' => $this->t('Preferred URL for this content'),
         'type' => 'string',
         'processor_id' => $this->getPluginId(),
       ];
-      $properties['search_api_urls'] = new UrlsProperty($definition);
+      $properties['search_api_canonical_url'] = new CanonicalUrlProperty($definition);
     }
 
     return $properties;
@@ -50,29 +50,26 @@ class Urls extends ProcessorPluginBase {
    */
   public function addFieldValues(ItemInterface $item) {
     $fields = $this->getFieldsHelper()
-      ->filterForPropertyPath($item->getFields(), NULL, 'search_api_urls');
-    $use_domain = FALSE;
+      ->filterForPropertyPath($item->getFields(), NULL, 'search_api_canonical_url');
+    $use_source = FALSE;
     if ($this->useDomainAccess()) {
       $entity = $item->getOriginalObject()->getValue();
       if ($entity instanceof EntityInterface) {
-        $manager = \Drupal::service('domain_access.manager');
-        $urls = $manager->getContentUrls($entity);
-        if (!empty($urls)) {
-          foreach ($fields as $field) {
-            foreach ($urls as $url) {
-              $field->addValue($url);
-            }
-          }
-          $use_domain = TRUE;
+        $source = domain_source_get($entity);
+      }
+      if (empty($source)) {
+        foreach ($fields as $field) {
+          $field->addValue('');
         }
+        $use_source = TRUE;
       }
     }
-    if (!$use_domain) {
+    if (!$use_source) {
       $url = $item->getDatasource()->getItemUrl($item->getOriginalObject());
       if ($url) {
-        $urls = [$url->setAbsolute()->toString()];
+        $url = $url->setAbsolute()->toString();
         foreach ($fields as $field) {
-          $field->addValue($urls);
+          $field->addValue($url);
         }
       }
     }
@@ -84,6 +81,6 @@ class Urls extends ProcessorPluginBase {
    * @return bool
    */
   protected function useDomainAccess() {
-    return defined('DOMAIN_ACCESS_FIELD');
+    return defined('DOMAIN_SOURCE_FIELD');
   }
 }
