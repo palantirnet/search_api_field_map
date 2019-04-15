@@ -2,6 +2,7 @@
 
 namespace Drupal\search_api_field_map\Plugin\search_api\processor;
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\search_api\Datasource\DatasourceInterface;
 use Drupal\search_api\Item\ItemInterface;
 use Drupal\search_api\Processor\ProcessorPluginBase;
@@ -52,22 +53,21 @@ class CanonicalUrl extends ProcessorPluginBase {
       ->filterForPropertyPath($item->getFields(), NULL, 'search_api_canonical_url');
     $source = NULL;
     if ($this->useDomainAccess()) {
-      $id = $item->getDatasource()->getItemId($item->getOriginalObject());
-      // @TODO This entity load routine is failing.
-      if ($entity = $item->getDatasource()->load($id) && $entity instanceof FieldableEntityInterface) {
+      $entity = $item->getOriginalObject()->getValue();
+      if ($entity instanceof EntityInterface) {
         $source = domain_source_get($entity);
       }
     }
-    if (is_null($source)) {
+    if (empty($source)) {
       foreach ($fields as $field) {
-        $field->addValue('null');
+        $field->addValue('');
       }
     }
     else {
       $url = $item->getDatasource()->getItemUrl($item->getOriginalObject());
       if ($url) {
+        $url = $url->setAbsolute()->toString();
         foreach ($fields as $field) {
-          $url = $url->setAbsolute()->toString();
           $field->addValue($url);
         }
       }

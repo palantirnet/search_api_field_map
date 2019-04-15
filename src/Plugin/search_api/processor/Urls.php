@@ -2,7 +2,7 @@
 
 namespace Drupal\search_api_field_map\Plugin\search_api\processor;
 
-use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\search_api\Datasource\DatasourceInterface;
 use Drupal\search_api\Item\ItemInterface;
 use Drupal\search_api\Processor\ProcessorPluginBase;
@@ -51,23 +51,22 @@ class Urls extends ProcessorPluginBase {
   public function addFieldValues(ItemInterface $item) {
     $fields = $this->getFieldsHelper()
       ->filterForPropertyPath($item->getFields(), NULL, 'search_api_urls');
-    $id = $item->getDatasource()->getItemId($item->getOriginalObject());
-    if ($this->useDomainAccess() && $entity = $item->getDatasource()->load($id)
-        && $entity instanceof FieldableEntityInterface) {
-      $manager = \Drupal::service('domain_access.manager');
-      $urls = $manager->getContentUrls($entity);
-      foreach ($fields as $field) {
-        foreach ($urls as $url) {
-          $field->addValue($url);
+    if ($this->useDomainAccess()) {
+      $entity = $item->getOriginalObject()->getValue();
+      if ($entity instanceof EntityInterface) {
+        $manager = \Drupal::service('domain_access.manager');
+        $urls = $manager->getContentUrls($entity);
+        foreach ($fields as $field) {
+          $field->addValue($urls);
         }
       }
     }
     else {
       $url = $item->getDatasource()->getItemUrl($item->getOriginalObject());
       if ($url) {
+        $urls = [$url->setAbsolute()->toString()];
         foreach ($fields as $field) {
-          $url = $url->setAbsolute()->toString();
-          $field->addValue($url);
+          $field->addValue($urls);
         }
       }
     }
