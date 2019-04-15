@@ -51,17 +51,23 @@ class Urls extends ProcessorPluginBase {
   public function addFieldValues(ItemInterface $item) {
     $fields = $this->getFieldsHelper()
       ->filterForPropertyPath($item->getFields(), NULL, 'search_api_urls');
+    $use_domain = FALSE;
     if ($this->useDomainAccess()) {
       $entity = $item->getOriginalObject()->getValue();
       if ($entity instanceof EntityInterface) {
         $manager = \Drupal::service('domain_access.manager');
         $urls = $manager->getContentUrls($entity);
-        foreach ($fields as $field) {
-          $field->addValue($urls);
+        if (!empty($urls)) {
+          foreach ($fields as $field) {
+            foreach ($urls as $url) {
+              $field->addValue($url);
+            }
+          }
+          $use_domain = TRUE;
         }
       }
     }
-    else {
+    if (!$use_domain) {
       $url = $item->getDatasource()->getItemUrl($item->getOriginalObject());
       if ($url) {
         $urls = [$url->setAbsolute()->toString()];

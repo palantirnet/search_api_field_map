@@ -51,19 +51,20 @@ class CanonicalUrl extends ProcessorPluginBase {
   public function addFieldValues(ItemInterface $item) {
     $fields = $this->getFieldsHelper()
       ->filterForPropertyPath($item->getFields(), NULL, 'search_api_canonical_url');
-    $source = NULL;
+    $use_source = FALSE;
     if ($this->useDomainAccess()) {
       $entity = $item->getOriginalObject()->getValue();
       if ($entity instanceof EntityInterface) {
         $source = domain_source_get($entity);
       }
-    }
-    if (empty($source)) {
-      foreach ($fields as $field) {
-        $field->addValue('');
+      if (empty($source)) {
+        foreach ($fields as $field) {
+          $field->addValue('');
+        }
+        $use_source = TRUE;
       }
     }
-    else {
+    if (!$use_source) {
       $url = $item->getDatasource()->getItemUrl($item->getOriginalObject());
       if ($url) {
         $url = $url->setAbsolute()->toString();
