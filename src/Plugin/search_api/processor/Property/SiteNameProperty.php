@@ -30,18 +30,32 @@ class SiteNameProperty extends ConfigurablePropertyBase {
    */
   public function buildConfigurationForm(FieldInterface $field, array $form, FormStateInterface $form_state) {
     $configuration = $field->getConfiguration();
-
     $form['#attached']['library'][] = 'search_api/drupal.search_api.admin_css';
-    $form['#tree'] = TRUE;
 
-    $form['site_name'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Site Name'),
-      '#description' => $this->t('The name of the site from which this content originated. This can be useful if indexing multiple sites with a single search index.'),
-      '#default_value' => $configuration['site_name'],
-      '#required' => TRUE,
-    ];
-
+    if ($this->useDomain()) {
+      $form['#tree'] = TRUE;
+      $form['domain'] = ['#type' => 'container'];
+      $storage = \Drupal::service('entity_type.manager')->getStorage('domain');
+      $domains = $storage->loadMultiple();
+      foreach ($domains as $domain) {
+        $form['domain'][$domain->id()] = [
+          '#type' => 'textfield',
+          '#title' => $this->t('%domain Domain Label', ['%domain' => $domain->label()]),
+          '#description' => t('Map the Domain to a custom label for search.'),
+          '#default_value' => !empty($this->options['domain'][$domain->id()]) ? $this->options['domain'][$domain->id()] : $domain->label(),
+          '#required' => TRUE,
+        ];
+      }
+    }
+    else {
+      $form['site_name'] = [
+        '#type' => 'textfield',
+        '#title' => $this->t('Site Name'),
+        '#description' => $this->t('The name of the site from which this content originated. This can be useful if indexing multiple sites with a single search index.'),
+        '#default_value' => $configuration['site_name'],
+        '#required' => TRUE,
+      ];
+    }
     return $form;
   }
 
@@ -53,6 +67,15 @@ class SiteNameProperty extends ConfigurablePropertyBase {
       'site_name' => $form_state->getValue('site_name'),
     ];
     $field->setConfiguration($values);
+  }
+
+  /**
+   * Whether to use the values from Domain.
+   *
+   * @return bool
+   */
+  protected function useDomain() {
+    return defined('DOMAIN_ADMIN_FIELD');
   }
 
 }
