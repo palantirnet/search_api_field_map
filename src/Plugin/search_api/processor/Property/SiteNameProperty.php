@@ -32,6 +32,14 @@ class SiteNameProperty extends ConfigurablePropertyBase {
     $configuration = $field->getConfiguration();
     $form['#attached']['library'][] = 'search_api/drupal.search_api.admin_css';
 
+    $form['site_name'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Site Name'),
+      '#description' => $this->t('The name of the site from which this content originated. This can be useful if indexing multiple sites with a single search index.'),
+      '#default_value' => $configuration['site_name'],
+      '#required' => TRUE,
+    ];
+
     if ($this->useDomain()) {
       $form['#tree'] = TRUE;
       $form['domain'] = ['#type' => 'container'];
@@ -42,20 +50,13 @@ class SiteNameProperty extends ConfigurablePropertyBase {
           '#type' => 'textfield',
           '#title' => $this->t('%domain Domain Label', ['%domain' => $domain->label()]),
           '#description' => t('Map the Domain to a custom label for search.'),
-          '#default_value' => !empty($this->options['domain'][$domain->id()]) ? $this->options['domain'][$domain->id()] : $domain->label(),
-          '#required' => TRUE,
+          '#default_value' => !empty($configuration['domain'][$domain->id()]) ? $configuration['domain'][$domain->id()] : $domain->label(),
+          '#required' => FALSE,
         ];
       }
+      $form['site_name']['#title'] = $this->t('Default site name');
     }
-    else {
-      $form['site_name'] = [
-        '#type' => 'textfield',
-        '#title' => $this->t('Site Name'),
-        '#description' => $this->t('The name of the site from which this content originated. This can be useful if indexing multiple sites with a single search index.'),
-        '#default_value' => $configuration['site_name'],
-        '#required' => TRUE,
-      ];
-    }
+
     return $form;
   }
 
@@ -66,6 +67,11 @@ class SiteNameProperty extends ConfigurablePropertyBase {
     $values = [
       'site_name' => $form_state->getValue('site_name'),
     ];
+    if ($domains = $form_state->getValue('domain')) {
+      foreach ($domains as $id => $value) {
+        $values['domain'][$id] = $value;
+      }
+    }
     $field->setConfiguration($values);
   }
 

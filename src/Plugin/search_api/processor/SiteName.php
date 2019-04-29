@@ -95,10 +95,15 @@ class SiteName extends ProcessorPluginBase {
       foreach ($fields as $field) {
         foreach ($urls as $domain_id => $url) {
           if (isset($domains[$domain_id])) {
-            $site_name = $domains[$domain_id]->label();
+            $site_name = !empty($field->getConfiguration()['domain'][$domains[$domain_id]->id()]) ?
+              $field->getConfiguration()['domain'][$domains[$domain_id]->id()] :
+              $domains[$domain_id]->label();
           }
           else {
             $site_name = $field->getConfiguration()['site_name'];
+          }
+          if (empty($site_name)) {
+            $site_name = \Drupal::config('system.site')->get('name');
           }
           $field->addValue($site_name);
         }
@@ -107,10 +112,12 @@ class SiteName extends ProcessorPluginBase {
     else {
       foreach ($fields as $field) {
         $site_name = $field->getConfiguration()['site_name'];
+        if (empty($site_name)) {
+          $site_name = \Drupal::config('system.site')->get('name');
+        }
         $field->addValue($site_name);
       }
     }
   }
-
 
 }
