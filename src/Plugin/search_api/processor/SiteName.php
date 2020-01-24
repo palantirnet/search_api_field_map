@@ -50,21 +50,83 @@ class SiteName extends ProcessorPluginBase {
   public function addFieldValues(ItemInterface $item) {
     $fields = $this->getFieldsHelper()
       ->filterForPropertyPath($item->getFields(), NULL, 'site_name');
+    if ($this->useDomain()) {
+      $entity = $item->getOriginalObject()->getValue();
+      if ($entity instanceof EntityInterface) {
+        $this->addDomainName($item, $entity, $fields);
+      }
+    }
+    else {
+      echo 'false';
+      foreach ($fields as $field) {
+        // Default to value of the site name text field.
+        $site_name = $field->getConfiguration()['site_name'];
+        // Check if flag to use [site:name] is set.
+        $use_system_site_name = $field->getConfiguration()['use_system_site_name'];
+        if ($use_system_site_name) {
+          $token = \Drupal::token();
+          // If the token replacement produces a value, add to this item.
+          if ($value = $token->replace('[site:name]', [], ['clear' => true])) {
+            $site_name = $value;
+          }
+        }
+        $field->addValue($site_name);
+      }
+    }
+  }
 
-    foreach ($fields as $field) {
-      // Default to value of the site name text field.
-      $site_name = $field->getConfiguration()['site_name'];
-      // Check if flag to use [site:name] is set.
-      $use_system_site_name = $field->getConfiguration()['use_system_site_name'];
-      if ($use_system_site_name) {
-        $token = \Drupal::token();
-        // If the token replacement produces a value, add to this item.
-        if ($value = $token->replace('[site:name]', [], ['clear' => true])) {
-          $site_name = $value;
+  /**
+   * Whether to use the canonical value from Domain Source.
+   *
+   * @return bool
+   */
+  protected function useDomain() {
+    return defined('DOMAIN_ADMIN_FIELD');
+  }
+
+  /**
+   * Process site names for Domains.
+   *
+   * @param Drupal\search_api\Item\ItemInterface $item
+   *   The item being indexed.
+   * @param Drupal\Core\Entity\EntityInterface $entity
+   *   The original entity of the item.
+   * @param array $fields
+   *   The fields being processed for this item.
+   *
+   * @TODO: Allow this value to be configured.
+   */
+  protected function addDomainName(ItemInterface $item, EntityInterface $entity, array $fields) {
+    $manager = \Drupal::service('domain_access.manager');
+    $urls = $manager->getContentUrls($entity);
+    if (!empty($urls)) {
+      $storage = \Drupal::service('entity_type.manager')->getStorage('domain');
+      $domains = $storage->loadMultiple();
+      foreach ($fields as $field) {
+        foreach ($urls as $domain_id => $url) {
+          if (isset($domains[$domain_id])) {
+            $site_name = !empty($field->getConfiguration()['domain'][$domains[$domain_id]->id()]) ?
+                $field->getConfiguration()['domain'][$domains[$domain_id]->id()] :
+                $domains[$domain_id]->label();
+          }
+          else {
+            $site_name = $field->getConfiguration()['site_name'];
+          }
+          if (empty($site_name)) {
+            $site_name = \Drupal::config('system.site')->get('name');
+          }
+          $field->addValue($site_name);
         }
       }
-
-      $field->addValue($site_name);
+    }
+    else {
+      foreach ($fields as $field) {
+        $site_name = $field->getConfiguration()['site_name'];
+        if (empty($site_name)) {
+          $site_name = \Drupal::config('system.site')->get('name');
+        }
+        $field->addValue($site_name);
+      }
     }
   }
 

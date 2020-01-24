@@ -76,6 +76,23 @@ class SiteNameProperty extends ConfigurablePropertyBase {
       ],
     ];
 
+    if ($this->useDomain()) {
+      $form['#tree'] = TRUE;
+      $form['domain'] = ['#type' => 'container'];
+      $storage = \Drupal::service('entity_type.manager')->getStorage('domain');
+      $domains = $storage->loadMultiple();
+      foreach ($domains as $domain) {
+        $form['domain'][$domain->id()] = [
+          '#type' => 'textfield',
+          '#title' => $this->t('%domain Domain Label', ['%domain' => $domain->label()]),
+          '#description' => t('Map the Domain to a custom label for search.'),
+          '#default_value' => !empty($configuration['domain'][$domain->id()]) ? $configuration['domain'][$domain->id()] : $domain->label(),
+          '#required' => FALSE,
+        ];
+      }
+      $form['site_name']['#title'] = $this->t('Default site name');
+    }
+
     return $form;
   }
 
@@ -97,7 +114,21 @@ class SiteNameProperty extends ConfigurablePropertyBase {
       'use_system_site_name' => $form_state->getValue(['site_name_group', 'use_system_site_name']),
       'site_name' => $form_state->getValue(['site_name_group', 'site_name']),
     ];
+    if ($domains = $form_state->getValue('domain')) {
+      foreach ($domains as $id => $value) {
+        $values['domain'][$id] = $value;
+      }
+    }
     $field->setConfiguration($values);
+  }
+
+  /**
+   * Whether to use the values from Domain.
+   *
+   * @return bool
+   */
+  protected function useDomain() {
+    return defined('DOMAIN_ADMIN_FIELD');
   }
 
 }
