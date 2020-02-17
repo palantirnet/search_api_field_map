@@ -57,22 +57,18 @@ class Urls extends ProcessorPluginBase {
       if ($entity instanceof EntityInterface) {
         $manager = \Drupal::service('domain_access.manager');
         $urls = $manager->getContentUrls($entity);
-        if (!empty($urls)) {
-          foreach ($fields as $field) {
-            foreach ($urls as $url) {
-              $field->addValue($url);
-            }
-          }
-          $use_domain = TRUE;
-        }
       }
     }
-    if (!$use_domain) {
+    else {
       $url = $item->getDatasource()->getItemUrl($item->getOriginalObject());
       if ($url) {
         $urls = [$url->setAbsolute()->toString()];
-        foreach ($fields as $field) {
-          $field->addValue($urls);
+      }
+    }
+    if (!empty($urls)) {
+      foreach ($fields as $field) {
+        foreach ($urls as $url) {
+          $field->addValue($url);
         }
       }
     }
