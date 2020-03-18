@@ -9,7 +9,7 @@ field.storage_settings.mapped_terms:
       type: boolean
       label: 'Contains US ASCII characters only'
 
-field.widget.settings.mapped_terms_textfield:
+field.widget.settings.*:
   type: mapping
   label: 'Mapped Terms Textfield'
   mapping:
