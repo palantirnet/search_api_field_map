@@ -1,9 +1,9 @@
-field.storage_settings.mapped_terms:
+field.storage_settings.*:
   type: mapping
   label: 'Mapped Term settings'
   mapping:
     max_length:
-      type: integer
+      type: string
       label: 'Maximum length'
     is_ascii:
       type: boolean
