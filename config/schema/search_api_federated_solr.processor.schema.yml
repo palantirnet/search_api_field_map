@@ -19,3 +19,21 @@ search_api.property_configuration.site_name:
     site_name:
       type: string
       label: 'The name of the site'
+    use_system_site_name:
+      type: integer
+      label: 'Inherit the site name from configuration'
+
+plugin.plugin_configuration.search_api_processor.*:
+  type: mapping
+  label: 'The configuration for a single processor'
+  mapping:
+    description:
+      type: string
+      label: 'The description of the item'
+    weights:
+      type: mapping
+      label: 'Sort order for elements'
+      mapping:
+        postprocess_query:
+          type: integer
+          label: 'Postprocess element'
