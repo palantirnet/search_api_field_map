@@ -98,31 +98,34 @@ class MappedTerms extends ProcessorPluginBase {
 
         // Iterate through this item's taxonomy terms to find mapped_terms values.
         foreach ($entity_terms as $term) {
-          // Load the taxonomy term entity.
+          // Load the taxonomy term entity, if it exists.
+          // See https://www.drupal.org/project/search_api_field_map/issues/3120808
           $term_entity = Term::load($term['target_id']);
-          // Get the term's field definitions.
-          $field_definitions = $term_entity->getFieldDefinitions();
-          $mapped_term_definitions = array_filter($field_definitions, function ($field_definition) {
-            return $field_definition->getType() === "mapped_terms";
-          });
+          if (!empty($term_entity)) {
+            // Get the term's field definitions.
+            $field_definitions = $term_entity->getFieldDefinitions();
+            $mapped_term_definitions = array_filter($field_definitions, function ($field_definition) {
+              return $field_definition->getType() === "mapped_terms";
+            });
 
-          // Since we don't know the field name which was added, we need to identify it by the field type.
-          $mapped_term_field_names = array_map(function ($mapped_term_definitions) {
-            return $mapped_term_definitions->getName();
-          }, $mapped_term_definitions);
+            // Since we don't know the field name which was added, we need to identify it by the field type.
+            $mapped_term_field_names = array_map(function ($mapped_term_definitions) {
+              return $mapped_term_definitions->getName();
+            }, $mapped_term_definitions);
 
-          // Iterate through any mapped_terms fields and get their values.
-          foreach ($mapped_term_field_names as $field_name) {
-            $mapped_term_values = $term_entity->$field_name->getValue();
+            // Iterate through any mapped_terms fields and get their values.
+            foreach ($mapped_term_field_names as $field_name) {
+              $mapped_term_values = $term_entity->$field_name->getValue();
 
-            // If the mapped_terms field is populated, add its values to the destination_terms array.
-            if (!empty($mapped_term_values)) {
-              foreach ($mapped_term_values as $mapped_term_value) {
-                // Avoid adding empty strings as values.
-                if (strlen(trim($mapped_term_value['value']))) {
-                  $mapped_terms_destination_values[] = $mapped_term_value['value'];
-                }
-              };
+              // If the mapped_terms field is populated, add its values to the destination_terms array.
+              if (!empty($mapped_term_values)) {
+                foreach ($mapped_term_values as $mapped_term_value) {
+                  // Avoid adding empty strings as values.
+                  if (strlen(trim($mapped_term_value['value']))) {
+                    $mapped_terms_destination_values[] = $mapped_term_value['value'];
+                  }
+                };
+              }
             }
           }
         };
