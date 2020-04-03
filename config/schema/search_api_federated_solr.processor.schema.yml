@@ -16,6 +16,9 @@ search_api.property_configuration.site_name:
   type: mapping
   label: 'Site name processor configuration'
   mapping:
+    use_system_site_name:
+      type: integer
+      label: 'Flag indicating use of the value for the system site name token'
     site_name:
       type: string
-      label: 'The name of the site'
+      label: 'Custom name for the site'

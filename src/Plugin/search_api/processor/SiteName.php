@@ -60,6 +60,15 @@ class SiteName extends ProcessorPluginBase {
     else {
       foreach ($fields as $field) {
         $site_name = $field->getConfiguration()['site_name'];
+        // Check if flag to use [site:name] is set.
+        $use_system_site_name = $field->getConfiguration()['use_system_site_name'];
+        if ($use_system_site_name) {
+          $token = \Drupal::token();
+          // If the token replacement produces a value, add to this item.
+          if ($value = $token->replace('[site:name]', [], ['clear' => true])) {
+            $site_name = $value;
+          }
+        }
         $field->addValue($site_name);
       }
     }
