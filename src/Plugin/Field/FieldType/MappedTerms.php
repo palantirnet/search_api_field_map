@@ -17,7 +17,7 @@ use Drupal\Core\Form\FormStateInterface;
  * @FieldType(
  *   id = "mapped_terms",
  *   label = @Translation("Mapped terms"),
- *   description = @Translation("Stores the solr search api mapped term destination value for taxonomy terms."),
+ *   description = @Translation("Stores the search api mapped term destination value for taxonomy terms."),
  *   default_widget = "mapped_terms_textfield",
  *   default_formatter = "string",
  *   cardinality = -1,

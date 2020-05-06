@@ -1,13 +1,15 @@
 INTRODUCTION
 ------------
 
-The Search API Field Map module facilitates indexing data from multiple Drupal sites into a single Apache Solr search index.
+The Search API Field Map module facilitates indexing data from multiple Drupal sites into a single search index.
 
  * For a full description of the module, visit the project page: 
 
  * Please use GitHub submit bug reports and feature suggestions, or to track changes:
   https://github.com/palantirnet/search_api_field_map
   
+The primary purpose of this module is to allow consistent mapping of data across multiple sites when using [Federated Search](https://www.drupal.org/project/search_api_federated_solr). However, it may be useful in other cases in which token replacement is required for specific search fields.
+
   
 REQUIREMENTS
 ------------
@@ -16,8 +18,6 @@ This module requires the following modules:
 
  * Search API (https://www.drupal.org/project/search_api)
  * Token (https://www.drupal.org/project/token)
-
-Additionally, it is recommended to configure Search API to send data to an Apache Solr server.
 
 
 INSTALLATION
@@ -33,7 +33,7 @@ CONFIGURATION
 
 On each site included in the mapped field search, you will need to:
 
-    1. Configure a Search API server to connect to the shared Solr index
+    1. Configure a Search API server to connect to the index
     2. [Follow these detailed instructions](docs/usage.md) to configure your fields.
 
 

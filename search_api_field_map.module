@@ -16,12 +16,12 @@ function search_api_field_map_help($route_name, RouteMatchInterface $route_match
     case 'help.page.search_api_field_map':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('This module facilitates indexing data from multiple Drupal sites into a single Solr search index.') . '</p>';
+      $output .= '<p>' . t('This module facilitates indexing data from multiple Drupal sites into a single search index.') . '</p>';
       $output .= '<h3>' . t('Usage') . '</h3>';
       $output .= '<p>' . t('On each site included in the mapped field search, you will need to') . ':</p>';
       $output .= '<ol>';
       $output .= '<li>' . t('Install this module') . '</li>';
-      $output .= '<li>' . t('Configure a Search API server to connect to the shared Solr index') . '</li>';
+      $output .= '<li>' . t('Configure a Search API server to connect to the shared index') . '</li>';
       $output .= '</ol>';
       $output .= '<h3>' . t('More information') . '</h3>';
       $output .= '<ul>';
