@@ -2,6 +2,7 @@
 
 namespace Drupal\search_api_field_map\Plugin\search_api\processor;
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\search_api\Datasource\DatasourceInterface;
 use Drupal\search_api\Item\ItemInterface;
 use Drupal\search_api_field_map\Plugin\search_api\processor\Property\MappedFieldProperty;
@@ -54,7 +55,7 @@ class MappedFields extends ProcessorPluginBase {
 
     // Get the entity object, bail if there's somehow not one.
     $entity = $item->getOriginalObject()->getValue();
-    if (!$entity) {
+    if (!$entity || !$entity instanceof EntityInterface) {
       // Apparently we were active for a wrong item.
       return;
     }
