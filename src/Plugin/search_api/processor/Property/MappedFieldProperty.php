@@ -64,6 +64,7 @@ class MappedFieldProperty extends ConfigurablePropertyBase {
           '#title' => $this->t('Field data for %datasource » %bundle', ['%datasource' => $datasource->label(), '%bundle' => $bundle_label]),
           '#element_validate' => array('token_element_validate'),
           '#token_types' => array($entity_type),
+          '#maxlength' => 512,
         ];
 
         // Set the default value if something already exists in our config.
