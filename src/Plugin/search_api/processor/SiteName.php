@@ -38,6 +38,7 @@ class SiteName extends ProcessorPluginBase {
         'description' => $this->t('The name of the site from which this content originated.'),
         'type' => 'string',
         'processor_id' => $this->getPluginId(),
+        'is_list' => TRUE,
       ];
       $properties['site_name'] = new SiteNameProperty($definition);
     }

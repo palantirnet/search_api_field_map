@@ -38,6 +38,7 @@ class Urls extends ProcessorPluginBase {
         'description' => $this->t('URLs pointing to this node on all sites containing.'),
         'type' => 'string',
         'processor_id' => $this->getPluginId(),
+        'is_list' => TRUE,
       ];
       $properties['search_api_urls'] = new UrlsProperty($definition);
     }

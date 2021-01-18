@@ -38,6 +38,7 @@ class MappedTerms extends ProcessorPluginBase {
         'description' => $this->t('Normalize multiple taxonomy terms into mapped terms.'),
         'type' => 'string',
         'processor_id' => $this->getPluginId(),
+        'is_list' => TRUE,
       ];
       $properties['mapped_terms'] = new MappedTermsProperty($definition);
     }
